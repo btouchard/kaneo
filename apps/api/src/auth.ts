@@ -51,6 +51,13 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
           scopes: (process.env.OIDC_SCOPES || "openid profile email").split(
             " ",
           ),
+          mapProfileToUser: (userInfo) => ({
+            id: userInfo.sub,
+            email: userInfo.email,
+            name: userInfo.name || userInfo.preferred_username,
+            image: userInfo.picture,
+            emailVerified: userInfo.email_verified || false,
+          }),
         },
       ],
     }),
