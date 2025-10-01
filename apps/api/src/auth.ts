@@ -2,9 +2,9 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { anonymous, genericOAuth } from "better-auth/plugins";
 import db, { schema } from "./database";
-import { generateDemoName } from "./utils/generate-demo-name";
 
 import dotenv from "dotenv";
+import { generateDemoName } from "./utils/generate-demo-name";
 
 dotenv.config();
 

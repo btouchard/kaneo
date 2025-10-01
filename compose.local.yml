@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: kaneo_user
       POSTGRES_PASSWORD: kaneo_password
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -23,8 +23,15 @@ services:
     ports:
       - "1337:1337"
     environment:
-      - JWT_ACCESS=change-me
+      - OIDC_CLIENT_ID=1040608905267-nar9pgmc856q1o4ducdv8oe7qqfrs308.apps.googleusercontent.com
+      - OIDC_CLIENT_SECRET=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
+      - OIDC_DISCOVERY_URL=https://accounts.google.com/.well-known/openid-configuration
+      - OIDC_SCOPES=openid profile email
+      - JWT_ACCESS=LjEhchYQDNQNC2Zox1d4U97JJTHYN/mgCYzLgDknTx29TBrbES2jEX5BHYdmAh004wcdvLDd4oJVCdjkBoCV/Q==
+      - BETTER_AUTH_SECRET=LjEhchYQDNQNC2Zox1d4U97JJTHYN/mgCYzLgDknTx29TBrbES2jEX5BHYdmAh004wcdvLDd4oJVCdjkBoCV/Q==
       - DATABASE_URL=postgresql://kaneo_user:kaneo_password@postgres:5432/kaneo
+      - NODE_ENV=development
+      - DEBUG=better-auth:*
     depends_on:
       postgres:
         condition: service_healthy
@@ -38,6 +45,7 @@ services:
       - "5173:5173"
     environment:
       - KANEO_API_URL=http://localhost:1337
+      - KANEO_ENABLED_AUTH=oidc
     depends_on:
       - api
     restart: unless-stopped

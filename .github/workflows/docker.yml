@@ -25,9 +25,9 @@ jobs:
       matrix:
         include:
           - dockerfile: ./apps/web/Dockerfile
-            image: ghcr.io/${{ github.repository_owner }}/web
+            image: ghcr.io/${{ github.repository_owner }}/kaneo/web
           - dockerfile: ./apps/api/Dockerfile
-            image: ghcr.io/${{ github.repository_owner }}/api
+            image: ghcr.io/${{ github.repository_owner }}/kaneo/api
     permissions:
       contents: read
       packages: write
