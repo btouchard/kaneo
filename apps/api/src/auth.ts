@@ -8,9 +8,13 @@ import { generateDemoName } from "./utils/generate-demo-name";
 
 dotenv.config();
 
+const trustedOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
+  : ["http://localhost:5173"];
+
 export const auth: ReturnType<typeof betterAuth> = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:1337",
-  trustedOrigins: ["http://localhost:5173"], // TODO: Add production URL
+  trustedOrigins,
   secret: process.env.JWT_ACCESS_SECRET || "",
   database: drizzleAdapter(db, {
     provider: "pg",
