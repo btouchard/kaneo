@@ -51,13 +51,31 @@ export const auth: ReturnType<typeof betterAuth> = betterAuth({
           scopes: (process.env.OIDC_SCOPES || "openid profile email").split(
             " ",
           ),
-          mapProfileToUser: (userInfo) => ({
-            id: userInfo.sub,
-            email: userInfo.email,
-            name: userInfo.name || userInfo.preferred_username,
-            image: userInfo.picture,
-            emailVerified: userInfo.email_verified || false,
-          }),
+          getUserInfo: async (tokens) => {
+            // Récupérer les endpoints depuis la discovery URL
+            const discoveryUrl = process.env.OIDC_DISCOVERY_URL || "";
+            const discoveryResponse = await fetch(discoveryUrl);
+            const discovery = await discoveryResponse.json();
+
+            // Appeler directement l'endpoint userinfo avec l'access_token
+            const userInfoResponse = await fetch(discovery.userinfo_endpoint, {
+              headers: {
+                Authorization: `Bearer ${tokens.accessToken}`,
+              },
+            });
+
+            const userInfo = await userInfoResponse.json();
+
+            return {
+              id: userInfo.sub,
+              email: userInfo.email,
+              name: userInfo.name || userInfo.preferred_username,
+              image: userInfo.picture,
+              emailVerified: userInfo.email_verified || false,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            };
+          },
         },
       ],
     }),
