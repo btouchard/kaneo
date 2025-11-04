@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Github, UserCheck } from "lucide-react";
+import { Github, KeyRound, UserCheck } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import PageTitle from "@/components/page-title";
@@ -22,6 +22,7 @@ function SignIn() {
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const [isGithubLoading, setIsGithubLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isOidcLoading, setIsOidcLoading] = useState(false);
   const lastLoginMethod = authClient.getLastUsedLoginMethod();
   const { data: config, isLoading: isConfigLoading } = useGetConfig();
 
@@ -90,6 +91,28 @@ function SignIn() {
     }
   };
 
+  const handleSignInOIDC = async () => {
+    setIsOidcLoading(true);
+    try {
+      const result = await authClient.signIn.social({
+        provider: "oidc",
+        callbackURL: `${import.meta.env.VITE_CLIENT_URL}/dashboard`,
+        errorCallbackURL: `${import.meta.env.VITE_CLIENT_URL}/auth/sign-in`,
+      });
+      if (result.error) {
+        throw new Error(result.error.message);
+      }
+      toast.success("Signed in with OIDC");
+      navigate({ to: "/dashboard" });
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to sign in with OIDC",
+      );
+    } finally {
+      setIsOidcLoading(false);
+    }
+  };
+
   if (isConfigLoading) {
     return (
       <>
@@ -145,13 +168,32 @@ function SignIn() {
                   onClick={handleSignInGithub}
                   disabled={isGithubLoading}
                   className={cn(
-                    "w-full",
+                    "w-full mb-2",
                     lastLoginMethod === "github" && "!border-primary/50",
                   )}
                 >
                   <Github className="w-4 h-4 mr-2" />
                   {isGithubLoading ? "Signing in..." : "Continue with GitHub"}
                   {lastLoginMethod === "github" && (
+                    <span className="absolute rounded-md -top-3 right-1 px-1.5 text-xs text-primary font-medium bg-sidebar border border-primary/50">
+                      Last used
+                    </span>
+                  )}
+                </Button>
+              )}
+              {config?.hasOidcSignIn && (
+                <Button
+                  variant="outline"
+                  onClick={handleSignInOIDC}
+                  disabled={isOidcLoading}
+                  className={cn(
+                    "w-full",
+                    lastLoginMethod === "oidc" && "!border-primary/50",
+                  )}
+                >
+                  <KeyRound className="w-4 h-4 mr-2" />
+                  {isOidcLoading ? "Signing in..." : "Continue with OIDC"}
+                  {lastLoginMethod === "oidc" && (
                     <span className="absolute rounded-md -top-3 right-1 px-1.5 text-xs text-primary font-medium bg-sidebar border border-primary/50">
                       Last used
                     </span>

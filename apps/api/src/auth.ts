@@ -5,6 +5,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import {
   anonymous,
   createAuthMiddleware,
+  genericOAuth,
   lastLoginMethod,
   magicLink,
   organization,
@@ -76,6 +77,44 @@ export const auth = betterAuth({
         }
       },
     }),
+    ...(process.env.OIDC_DISCOVERY_URL
+      ? [
+          genericOAuth({
+            providerId: "oidc",
+            discoveryUrl: process.env.OIDC_DISCOVERY_URL,
+            clientId: process.env.OIDC_CLIENT_ID || "",
+            clientSecret: process.env.OIDC_CLIENT_SECRET || "",
+            scopes: process.env.OIDC_SCOPES?.split(" ") || [
+              "openid",
+              "profile",
+              "email",
+            ],
+            async getUserInfo(tokens) {
+              const discoveryResponse = await fetch(
+                process.env.OIDC_DISCOVERY_URL!,
+              );
+              const discoveryData = await discoveryResponse.json();
+              const userInfoEndpoint = discoveryData.userinfo_endpoint;
+
+              const response = await fetch(userInfoEndpoint, {
+                headers: {
+                  Authorization: `Bearer ${tokens.access_token}`,
+                },
+              });
+
+              const user = await response.json();
+
+              return {
+                id: user.sub,
+                email: user.email,
+                name: user.name,
+                image: user.picture,
+                emailVerified: user.email_verified,
+              };
+            },
+          }),
+        ]
+      : []),
     organization({
       // creatorRole: "admin", // maybe will want this "The role of the user who creates the organization."
       // invitationLimit and other fields like this may be beneficial as well

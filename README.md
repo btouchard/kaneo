@@ -96,6 +96,54 @@ For development, see our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for det
 | `DATABASE_URL` | PostgreSQL connection string | Required |
 | `DISABLE_REGISTRATION` | Block new user signups | `true` |
 
+### Authentication & SSO
+
+Kaneo supports multiple authentication methods including email/password, magic links, and various SSO providers.
+
+#### OIDC (OpenID Connect) Authentication
+
+To enable OIDC authentication, configure the following environment variables:
+
+```bash
+OIDC_CLIENT_ID=your-client-id
+OIDC_CLIENT_SECRET=your-client-secret
+OIDC_DISCOVERY_URL=https://your-provider.com/.well-known/openid-configuration
+OIDC_SCOPES=openid profile email  # Optional, defaults to "openid profile email"
+```
+
+The OIDC sign-in button will appear on the login page when `OIDC_DISCOVERY_URL` is configured.
+
+**Redirect URI Configuration:**
+Make sure to configure the following redirect URI in your OIDC provider:
+```
+{KANEO_CLIENT_URL}/api/auth/callback/oidc
+```
+
+#### GitHub Authentication
+
+```bash
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+```
+
+#### Google Authentication
+
+```bash
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+```
+
+#### SMTP Configuration (for Magic Links)
+
+```bash
+SMTP_HOST=your-smtp-host
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your-smtp-user
+SMTP_PASSWORD=your-smtp-password
+SMTP_FROM=noreply@yourdomain.com
+```
+
 ### Database Setup
 
 Kaneo uses PostgreSQL for data storage. The Docker Compose setup above handles this automatically, but if you're running Kaneo outside of Docker, or if you are using an external postgres database, you'll need to:

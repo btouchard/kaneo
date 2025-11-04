@@ -18,6 +18,10 @@ function getSettings() {
     hasGoogleSignIn:
       Boolean(process.env.GOOGLE_CLIENT_ID) &&
       Boolean(process.env.GOOGLE_CLIENT_SECRET),
+    hasOidcSignIn:
+      Boolean(process.env.OIDC_CLIENT_ID) &&
+      Boolean(process.env.OIDC_CLIENT_SECRET) &&
+      Boolean(process.env.OIDC_DISCOVERY_URL),
   };
 }
 
